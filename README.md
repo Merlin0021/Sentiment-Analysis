@@ -1,1 +1,110 @@
-"# Sentiment-Analysis" 
+---
+title: "Sentiment-Analysis(Corvera, Paclibar, Sabarillo)\""
+author: "Rotciv Corvera, Jhon Albert Paclibar, Kirk Axl Dend Sabarillo"
+date: "2024-12-10"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+#installing packages
+install.packages("lubridate")
+library(lubridate)
+install.packages("ggplot2")
+library(ggplot2)
+install.packages("tidyverse")
+install.packages("tidytext")
+library(tidytext)
+library(tidyverse)
+```
+
+
+```{r}
+# Read the CSV file
+tweet_data <- read.csv("tweetsDF.csv", stringsAsFactors = FALSE)
+```
+
+```{r}
+# Convert the created column to a datetime format
+tweet_data$created <- ymd_hms(tweet_data$created)
+```
+
+```{r}
+# Create a time series plot
+ggplot(tweet_data, aes(x = created)) +
+  geom_line(stat = "count") +
+  labs(x = "Date", y = "Number of Tweets", title = "Tweet Frequency Over Time") +
+  theme_minimal()
+```
+
+```{r}
+#By analyzing the time series data, we can identify the specific
+#date when user activity on the platform peaked,
+#revealing when people were most active.
+#Here, it shows that most people tweet during October 30.
+```
+
+```{r}
+# Create a tokenized data frame
+tokens <- tweet_data %>%
+  unnest_tokens(word, text)
+```
+
+```{r}
+# Remove stop words
+tokens <- tokens %>%
+  anti_join(stop_words)
+```
+
+```{r}
+# Count the frequency of each word
+word_counts <- tokens %>%
+  count(word, sort = TRUE)
+```
+
+```{r}
+# Visualize the top 20 words
+word_counts %>%
+  head(20) %>%
+  ggplot(aes(x = reorder(word, n), y = n)) +
+  geom_col(fill = "blue") +
+  labs(x = "Word", y = "Frequency", title = "Top 20 Words Used") +
+  coord_flip()
+```
+```{r}
+#Using the bar chart, we can pinpoint the most frequently
+#used word in the tweets during that period.
+#This allows us to infer and identify the recent event that captured people's attention.
+
+#Here, the data reveals that the most tweeted word was 
+#"Itaewon," a district located in Seoul, South Korea.
+```
+
+```{r}
+# Count the frequency of each device
+device_counts <- table(tweet_data$tweetSource)
+```
+
+```{r}
+# Convert the table to a data frame for ggplot2
+device_df <- as.data.frame(device_counts)
+```
+
+```{r}
+# Create a bar plot using ggplot2
+ggplot(device_df, aes(x = Var1, y = Freq, fill = Var1)) +
+  geom_bar(stat = "identity") +
+  labs(x = "Device", y = "Number of Tweets", title = "Device Usage for Tweeting") +
+  theme_minimal()
+```
+
+```{r}
+#The graph illustrates the devices most commonly used for posting tweets.
+#The results indicate that the majority of users tweeted from iPhones,
+#with Android devices coming in second, showing only a small gap between them.
+```
